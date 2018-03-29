@@ -52,7 +52,7 @@ class ExamplePlugin{
 		//menu
 	  	add_menu_page('ExamplePlugin', 'ExamplePlugin', 'activate_plugins', 'ejemplo-plugin.php', array($this, 'admin_page'));
 	  	//submenus
-	  	add_submenu_page( 'ejemplo-plugin.php', 'Formulario', 'Formulario', 'manage_options', 'options_submenu1',  array($this, 'form_function'));
+	  	add_submenu_page( 'ejemplo-plugin.php', 'Añadir Nuevo', 'Añadir Nuevo', 'manage_options', 'options_submenu1',  array($this, 'form_function'));
 		add_submenu_page( 'ejemplo-plugin.php', 'Opciones', 'Opciones', 'manage_options', 'options_submenu2',  array($this, 'options_function'));
 	}
 
@@ -63,7 +63,10 @@ class ExamplePlugin{
         ?>
             <div class="wrap">
                 <div id="icon-users" class="icon32"></div>
-                <h2>Ejemplo Listado Prueba</h2>
+                <p>
+                	<h2>Ejemplo Listado Prueba</h2>
+                	<a href="admin.php?page=options_submenu1" class="page-title-action">Añadir Nuevo</a>
+            	</p>
                 <?php $exampleListTable->display(); ?>
             </div>
 		<?php
@@ -87,7 +90,7 @@ class ExamplePlugin{
 
 		  		</tbody>
 		  	</table>
-		  	<input type='submit' class='button button-primary' id="submit"/>
+		  	<input type='submit' class='button button-primary' id="submit" value="Añadir" />
 	  	</form>
 	  	<?php
 
@@ -177,11 +180,7 @@ class Example_List_Table extends WP_List_Table
     {
         $columns = array(
             'id'          => 'ID',
-            'title'       => 'Title',
-            'description' => 'Description',
-            'year'        => 'Year',
-            'director'    => 'Director',
-            'rating'      => 'Rating'
+            'prueba'       => 'Prueba',
         );
         return $columns;
     }
@@ -211,8 +210,15 @@ class Example_List_Table extends WP_List_Table
      */
     private function table_data()
     {
-        $data = array();
-        $data[] = array(
+    	global $wpdb;
+	 	$tablename = $wpdb->prefix . 'ejemplo_plugin';
+
+       $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $tablename");
+       //$items = $wpdb->get_var("SELECT * FROM $tablename");
+        $data = $wpdb->get_results("SELECT * FROM $tablename",ARRAY_A);
+
+
+        /*$data[] = array(
                     'id'          => 1,
                     'title'       => 'The Shawshank Redemption',
                     'description' => 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
@@ -291,7 +297,7 @@ class Example_List_Table extends WP_List_Table
                     'year'        => '1999',
                     'director'    => 'David Fincher',
                     'rating'      => '8.8'
-                    );
+                    );*/
         return $data;
     }
     /**
