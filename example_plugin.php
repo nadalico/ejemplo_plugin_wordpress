@@ -157,9 +157,10 @@ class Example_List_Table extends WP_List_Table
         $columns = $this->get_columns();
         $hidden = $this->get_hidden_columns();
         $sortable = $this->get_sortable_columns();
+        $data = array();
         $data = $this->table_data();
         usort( $data, array( &$this, 'sort_data' ) );
-        $perPage = 2;
+        $perPage = 10;
         $currentPage = $this->get_pagenum();
         $totalItems = count($data);
         $this->set_pagination_args( array(
@@ -168,6 +169,7 @@ class Example_List_Table extends WP_List_Table
         ) );
         $data = array_slice($data,(($currentPage-1)*$perPage),$perPage);
         $this->_column_headers = array($columns, $hidden, $sortable);
+
         $this->items = $data;
     }
 
@@ -179,7 +181,6 @@ class Example_List_Table extends WP_List_Table
     public function get_columns()
     {
         $columns = array(
-            'id'          => 'ID',
             'prueba'       => 'Prueba',
         );
         return $columns;
@@ -213,7 +214,7 @@ class Example_List_Table extends WP_List_Table
     	global $wpdb;
 	 	$tablename = $wpdb->prefix . 'ejemplo_plugin';
 
-       $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $tablename");
+       //$total_items = $wpdb->get_var("SELECT COUNT(id) FROM $tablename");
        //$items = $wpdb->get_var("SELECT * FROM $tablename");
         $data = $wpdb->get_results("SELECT * FROM $tablename",ARRAY_A);
 
@@ -311,12 +312,7 @@ class Example_List_Table extends WP_List_Table
     public function column_default( $item, $column_name )
     {
         switch( $column_name ) {
-            case 'id':
-            case 'title':
-            case 'description':
-            case 'year':
-            case 'director':
-            case 'rating':
+            case 'prueba':
                 return $item[ $column_name ];
             default:
                 return print_r( $item, true ) ;
@@ -330,7 +326,7 @@ class Example_List_Table extends WP_List_Table
     private function sort_data( $a, $b )
     {
         // Set defaults
-        $orderby = 'title';
+        $orderby = 'prueba';
         $order = 'asc';
         // If orderby is set, use this as the sort column
         if(!empty($_GET['orderby']))
