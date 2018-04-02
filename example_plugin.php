@@ -181,6 +181,7 @@ class Example_List_Table extends WP_List_Table
     public function get_columns()
     {
         $columns = array(
+        	'cb'    => '<input type="checkbox" />',
             'prueba'       => 'Prueba',
         );
         return $columns;
@@ -345,4 +346,54 @@ class Example_List_Table extends WP_List_Table
         }
         return -$result;
     }
+
+    /**
+     * desplegable para acción en masa del encabezado
+     */
+     function get_bulk_actions()
+     {
+       	$actions = array(
+         	'delete'    => 'Eliminar'
+       	);
+       	return $actions;
+     }
+
+      /**
+     * checkbox, el campo name debe ser por el que vamos a realizar acciones en masa
+     */
+
+    function column_cb($item)
+    {
+        return sprintf(
+            '<input type="checkbox" name="id[]" value="%s" />', $item['id']
+        );
+    }
+
+     /**
+     * Procesa acciones en masa, en este caso elimina
+     */
+    function process_bulk_action()
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ejemplo_plugin';
+
+        //si la acción actual es delete significa que estamos eliminando
+        if ('delete' === $this->current_action())
+        {
+            $ids = isset($_GET['id']) ? $_GET['id'] : array();
+            //si es un array de ids
+            if (is_array($ids))
+            {
+            	$ids = implode(',', $ids);
+            }
+
+            //si hay ids eliminamos
+            if (!empty($ids))
+            {
+                $wpdb->query("DELETE FROM $table_name WHERE id IN($ids)");
+            }
+        }
+    }
+
+
 }
