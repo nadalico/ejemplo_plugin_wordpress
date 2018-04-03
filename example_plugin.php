@@ -102,6 +102,9 @@ class ExamplePlugin{
 	  		    'prueba' => $_POST[ 'prueba'],
 	  		];
 	  		$wpdb->insert($tablename, $data);
+        $wpdb->insert($tablename, $data);
+        wp_redirect( admin_url( '/admin.php?page=ejemplo-plugin.php' ), 301 );
+        exit;
 	  	}
 	}
 
@@ -169,7 +172,7 @@ class Example_List_Table extends WP_List_Table
         ) );
         $data = array_slice($data,(($currentPage-1)*$perPage),$perPage);
         $this->_column_headers = array($columns, $hidden, $sortable);
-
+        $this->process_bulk_action();
         $this->items = $data;
     }
 
@@ -182,7 +185,7 @@ class Example_List_Table extends WP_List_Table
     {
         $columns = array(
         	'cb'    => '<input type="checkbox" />',
-            'prueba'       => 'Prueba',
+          'prueba'       => 'Prueba',
         );
         return $columns;
     }
@@ -193,7 +196,7 @@ class Example_List_Table extends WP_List_Table
      */
     public function get_hidden_columns()
     {
-        return array();
+      return array('id' => array('id', false));
     }
     /**
      * Define the sortable columns
@@ -212,94 +215,10 @@ class Example_List_Table extends WP_List_Table
      */
     private function table_data()
     {
-    	global $wpdb;
-	 	$tablename = $wpdb->prefix . 'ejemplo_plugin';
-
-       //$total_items = $wpdb->get_var("SELECT COUNT(id) FROM $tablename");
-       //$items = $wpdb->get_var("SELECT * FROM $tablename");
+    	 global $wpdb;
+	 	   $tablename = $wpdb->prefix . 'ejemplo_plugin';
         $data = $wpdb->get_results("SELECT * FROM $tablename",ARRAY_A);
 
-
-        /*$data[] = array(
-                    'id'          => 1,
-                    'title'       => 'The Shawshank Redemption',
-                    'description' => 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
-                    'year'        => '1994',
-                    'director'    => 'Frank Darabont',
-                    'rating'      => '9.3'
-                    );
-        $data[] = array(
-                    'id'          => 2,
-                    'title'       => 'The Godfather',
-                    'description' => 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
-                    'year'        => '1972',
-                    'director'    => 'Francis Ford Coppola',
-                    'rating'      => '9.2'
-                    );
-        $data[] = array(
-                    'id'          => 3,
-                    'title'       => 'The Godfather: Part II',
-                    'description' => 'The early life and career of Vito Corleone in 1920s New York is portrayed while his son, Michael, expands and tightens his grip on his crime syndicate stretching from Lake Tahoe, Nevada to pre-revolution 1958 Cuba.',
-                    'year'        => '1974',
-                    'director'    => 'Francis Ford Coppola',
-                    'rating'      => '9.0'
-                    );
-        $data[] = array(
-                    'id'          => 4,
-                    'title'       => 'Pulp Fiction',
-                    'description' => 'The lives of two mob hit men, a boxer, a gangster\'s wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
-                    'year'        => '1994',
-                    'director'    => 'Quentin Tarantino',
-                    'rating'      => '9.0'
-                    );
-        $data[] = array(
-                    'id'          => 5,
-                    'title'       => 'The Good, the Bad and the Ugly',
-                    'description' => 'A bounty hunting scam joins two men in an uneasy alliance against a third in a race to find a fortune in gold buried in a remote cemetery.',
-                    'year'        => '1966',
-                    'director'    => 'Sergio Leone',
-                    'rating'      => '9.0'
-                    );
-        $data[] = array(
-                    'id'          => 6,
-                    'title'       => 'The Dark Knight',
-                    'description' => 'When Batman, Gordon and Harvey Dent launch an assault on the mob, they let the clown out of the box, the Joker, bent on turning Gotham on itself and bringing any heroes down to his level.',
-                    'year'        => '2008',
-                    'director'    => 'Christopher Nolan',
-                    'rating'      => '9.0'
-                    );
-        $data[] = array(
-                    'id'          => 7,
-                    'title'       => '12 Angry Men',
-                    'description' => 'A dissenting juror in a murder trial slowly manages to convince the others that the case is not as obviously clear as it seemed in court.',
-                    'year'        => '1957',
-                    'director'    => 'Sidney Lumet',
-                    'rating'      => '8.9'
-                    );
-        $data[] = array(
-                    'id'          => 8,
-                    'title'       => 'Schindler\'s List',
-                    'description' => 'In Poland during World War II, Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.',
-                    'year'        => '1993',
-                    'director'    => 'Steven Spielberg',
-                    'rating'      => '8.9'
-                    );
-        $data[] = array(
-                    'id'          => 9,
-                    'title'       => 'The Lord of the Rings: The Return of the King',
-                    'description' => 'Gandalf and Aragorn lead the World of Men against Sauron\'s army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.',
-                    'year'        => '2003',
-                    'director'    => 'Peter Jackson',
-                    'rating'      => '8.9'
-                    );
-        $data[] = array(
-                    'id'          => 10,
-                    'title'       => 'Fight Club',
-                    'description' => 'An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker and they form an underground fight club that evolves into something much, much more...',
-                    'year'        => '1999',
-                    'director'    => 'David Fincher',
-                    'rating'      => '8.8'
-                    );*/
         return $data;
     }
     /**
@@ -347,6 +266,16 @@ class Example_List_Table extends WP_List_Table
         return -$result;
     }
 
+    /*funcion para editar eliminar un registro*/
+    public function column_prueba($item) {
+      $actions = array(
+                'edit'      => sprintf('<a href="?page=options_submenu1&action=%s&id=%s">Editar</a>',$_REQUEST['page'],'edit',$item['ID']),
+                'delete'    => sprintf('<a href="?page=%s&action=%s&id=%s">Eliminar</a>',$_REQUEST['page'],'delete',$item['id']),
+            );
+
+      return sprintf('%1$s %2$s', $item['prueba'], $this->row_actions($actions) );
+    }
+
     /**
      * desplegable para acción en masa del encabezado
      */
@@ -365,21 +294,24 @@ class Example_List_Table extends WP_List_Table
     function column_cb($item)
     {
         return sprintf(
-            '<input type="checkbox" name="id[]" value="%s" />', $item['id']
+            '<input type="checkbox" name="prueba[]" value="%s" />',
+            $this->_args['singular'],
+            $item->id
         );
     }
 
      /**
      * Procesa acciones en masa, en este caso elimina
      */
-    function process_bulk_action()
+    private function process_bulk_action()
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ejemplo_plugin';
-
+        echo $this->current_action();
         //si la acción actual es delete significa que estamos eliminando
         if ('delete' === $this->current_action())
         {
+          echo "borrando";
             $ids = isset($_GET['id']) ? $_GET['id'] : array();
             //si es un array de ids
             if (is_array($ids))
