@@ -52,7 +52,7 @@ class ExamplePlugin{
 		//menu
 	  	add_menu_page('ExamplePlugin', 'ExamplePlugin', 'activate_plugins', 'ejemplo-plugin.php', array($this, 'admin_page'));
 	  	//submenus
-	  	add_submenu_page( 'ejemplo-plugin.php', 'Añadir Nuevo', 'Añadir Nuevo', 'manage_options', 'options_submenu1',  array($this, 'form_function'));
+	  	add_submenu_page( 'ejemplo-plugin.php', 'Añadir Nuevo', 'Añadir Nuevo', 'manage_options', 'agregar_prueba',  array($this, 'form_function'));
 		add_submenu_page( 'ejemplo-plugin.php', 'Opciones', 'Opciones', 'manage_options', 'options_submenu2',  array($this, 'options_function'));
 	}
 
@@ -65,7 +65,7 @@ class ExamplePlugin{
                 <div id="icon-users" class="icon32"></div>
                 <p>
                 	<h2>Ejemplo Listado Prueba</h2>
-                	<a href="admin.php?page=options_submenu1" class="page-title-action">Añadir Nuevo</a>
+                	<a href="admin.php?page=agregar_prueba" class="page-title-action">Añadir Nuevo</a>
             	</p>
                 <?php $exampleListTable->display(); ?>
             </div>
@@ -84,7 +84,7 @@ class ExamplePlugin{
 		  					<label for='prueba'>Prueba</label>
 		  				</th>
 		  				<td>
-		  					<input type='text' class='regular-text ltr' id="prueba" name="prueba" placeholder='prueba' />
+		  					<input type='text' class='regular-text ltr' id="prueba" name="prueba" val />
 		  				</td>
 		  			</tr>
 
@@ -95,15 +95,17 @@ class ExamplePlugin{
 	  	<?php
 
 	  	if ( $_SERVER['REQUEST_METHOD'] == 'POST'){
-	  		echo "Guardado";
 	  		global $wpdb;
 	  		$tablename = $wpdb->prefix . 'ejemplo_plugin';
 	  		$data = [
 	  		    'prueba' => $_POST[ 'prueba'],
 	  		];
 	  		$wpdb->insert($tablename, $data);
-        $wpdb->insert($tablename, $data);
-        wp_redirect( admin_url( '/admin.php?page=ejemplo-plugin.php' ), 301 );
+        
+        $url = admin_url('admin.php?page=customlinks');
+        wp_redirect($url); 
+        echo "guardado";
+        //wp_redirect( admin_url( '?page=ejemplo-plugin.php&id=%s' ), 301 );
         exit;
 	  	}
 	}
@@ -269,9 +271,10 @@ class Example_List_Table extends WP_List_Table
     /*funcion para editar eliminar un registro*/
     public function column_prueba($item) {
       $actions = array(
-                'edit'      => sprintf('<a href="?page=options_submenu1&action=%s&id=%s">Editar</a>',$_REQUEST['page'],'edit',$item['ID']),
-                'delete'    => sprintf('<a href="?page=%s&action=%s&id=%s">Eliminar</a>',$_REQUEST['page'],'delete',$item['id']),
+                'edit'      => sprintf('<a href="?page=%s&action=%s&id=%s">Editar</a>','agregar_prueba','edit',$item['id']),
+                'delete'    => sprintf('<a href="?page=%s&action=%s&id=%s">Borrar</a>',$_REQUEST['page'],'delete',$item['id']),
             );
+
 
       return sprintf('%1$s %2$s', $item['prueba'], $this->row_actions($actions) );
     }
@@ -294,9 +297,8 @@ class Example_List_Table extends WP_List_Table
     function column_cb($item)
     {
         return sprintf(
-            '<input type="checkbox" name="prueba[]" value="%s" />',
-            $this->_args['singular'],
-            $item->id
+            '<input type="checkbox" name="id[]" value="%s" />',
+            $item['id']
         );
     }
 
@@ -307,11 +309,9 @@ class Example_List_Table extends WP_List_Table
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ejemplo_plugin';
-        echo $this->current_action();
         //si la acción actual es delete significa que estamos eliminando
         if ('delete' === $this->current_action())
         {
-          echo "borrando";
             $ids = isset($_GET['id']) ? $_GET['id'] : array();
             //si es un array de ids
             if (is_array($ids))
@@ -325,6 +325,14 @@ class Example_List_Table extends WP_List_Table
                 $wpdb->query("DELETE FROM $table_name WHERE id IN($ids)");
             }
         }
+    }
+
+    /**
+   * función que se ejecutará cuando no existan items
+   */
+    public function no_items() 
+    {
+      _e( 'No se encontrarón búsquedas.' );
     }
 
 
