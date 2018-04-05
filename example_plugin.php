@@ -50,10 +50,10 @@ class ExamplePlugin{
 	//y decimos que se lleve a cabo al activar el plugin con activate_plugins
 	public function add_admin_menu(){
 		//menu
-	  	add_menu_page('ExamplePlugin', 'ExamplePlugin', 'activate_plugins', 'ejemplo-plugin.php', array($this, 'admin_page'));
+	  	add_menu_page('ExamplePlugin', 'ExamplePlugin', 'activate_plugins', 'ejemplo_plugin_list', array($this, 'admin_page'));
 	  	//submenus
-	  	add_submenu_page( 'ejemplo-plugin.php', 'Añadir Nuevo', 'Añadir Nuevo', 'manage_options', 'agregar_prueba',  array($this, 'form_function'));
-		add_submenu_page( 'ejemplo-plugin.php', 'Opciones', 'Opciones', 'manage_options', 'options_submenu2',  array($this, 'options_function'));
+	  	add_submenu_page( 'ejemplo_plugin_list', 'Añadir Nuevo', 'Añadir Nuevo', 'manage_options', 'agregar_prueba',  array($this, 'form_function'));
+		add_submenu_page( 'ejemplo_plugin_list', 'Opciones', 'Opciones', 'manage_options', 'options_submenu2',  array($this, 'options_function'));
 	}
 
 	//el mensaje que saldrá en otra página al pulsar el botón del menú que hemos creado
@@ -67,7 +67,10 @@ class ExamplePlugin{
                 	<h2>Ejemplo Listado Prueba</h2>
                 	<a href="admin.php?page=agregar_prueba" class="page-title-action">Añadir Nuevo</a>
             	</p>
-                <?php $exampleListTable->display(); ?>
+                 <form id="pruebas-filter" method="get">
+                  <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+                  <?php $exampleListTable->display(); ?>
+                </form>
             </div>
 		<?php
 	}
@@ -76,7 +79,7 @@ class ExamplePlugin{
 	public function form_function(){
 		?>
 	  	<h2>Ejemplo plugin</h2>
-	  	<form name="plugin_example" action="" method="post">
+	  	<form name="plugin_example" method="post">
 		  	<table class='form-table'>
 		  		<tbody>
 		  			<tr class='user-email-wrap'>
@@ -101,18 +104,10 @@ class ExamplePlugin{
 	  		    'prueba' => $_POST[ 'prueba'],
 	  		];
 	  		$wpdb->insert($tablename, $data);
-        
-        $url = admin_url('admin.php?page=customlinks');
-        wp_redirect($url); 
-        echo "guardado";
-        //wp_redirect( admin_url( '?page=ejemplo-plugin.php&id=%s' ), 301 );
-        exit;
 	  	}
-	}
-
-	public function form_save_data(){
 
 	}
+
 
 	public function options_function(){
 		?>
@@ -143,7 +138,7 @@ if(is_admin())
 	register_activation_hook( __FILE__, array($miplugin,'plugin_example_install') );
 }
 
-//clase listado
+//-----------clase listado-----------------------------------------
 
 // WP_List_Table is not loaded automatically so we need to load it in our application
 if( ! class_exists( 'WP_List_Table' ) ) {
@@ -330,7 +325,7 @@ class Example_List_Table extends WP_List_Table
     /**
    * función que se ejecutará cuando no existan items
    */
-    public function no_items() 
+    public function no_items()
     {
       _e( 'No se encontrarón búsquedas.' );
     }
