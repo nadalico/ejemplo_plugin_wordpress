@@ -15,6 +15,7 @@ class ExamplePlugin{
 		add_action('admin_menu',array($this,"add_admin_menu"));
 	 	add_action('admin_menu',array($this,"add_option_menu"));
 	 	add_option( 'db_version', $db_version );
+    add_filter('admin_footer_text', 'change_admin_footer');
 
 	 	global $wpdb;
 	 	$this->wpdb = $wpdb;
@@ -79,7 +80,7 @@ class ExamplePlugin{
 	public function form_function(){
 		?>
 	  	<h2>Ejemplo plugin</h2>
-	  	<form name="plugin_example" method="post">
+	  	<form name="plugin_example" method="post" action="">
 		  	<table class='form-table'>
 		  		<tbody>
 		  			<tr class='user-email-wrap'>
@@ -93,11 +94,14 @@ class ExamplePlugin{
 
 		  		</tbody>
 		  	</table>
-		  	<input type='submit' class='button button-primary' id="submit" value="Añadir" />
+         <?php 
+          submit_button();
+
+         ?>
 	  	</form>
 	  	<?php
 
-	  	if ( $_SERVER['REQUEST_METHOD'] == 'POST'){
+	  	if ( $_SERVER['REQUEST_METHOD'] === 'POST'){
 	  		global $wpdb;
 	  		$tablename = $wpdb->prefix . 'ejemplo_plugin';
 	  		$data = [
@@ -129,6 +133,11 @@ class ExamplePlugin{
 	}
 }
 
+/*añadimos pie de pagina en nuestro plugin*/
+function change_admin_footer(){
+   echo '<span id="footer-note">Plugin Ejemplo by JNadal</span>';
+  }
+
 
 
 //creamos la instancia para poder utilizarlo
@@ -137,6 +146,9 @@ if(is_admin())
 	$miplugin = new ExamplePlugin();
 	register_activation_hook( __FILE__, array($miplugin,'plugin_example_install') );
 }
+
+
+
 
 //-----------clase listado-----------------------------------------
 
